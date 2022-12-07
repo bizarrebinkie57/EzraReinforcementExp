@@ -64,10 +64,10 @@
     <value>97, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="PbCheck.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAMkAAADUCAYAAAA2jgdAAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
-        wgAADsIBFShKgAAAGZRJREFUeF7tnelbFce2xu8/dnJuToaTOSbO85A4RBOHOCTGKRoHUEBQEQRnFEWc
+        vwAADr8BOAVTJAAAGZRJREFUeF7tnelbFce2xu8/dnJuToaTOSbO85A4RBOHOCTGKRoHUEBQEQRnFEWc
         BxxRVBQcwQEBRUAUEEFGIR/r7rdy9z378S7s7tpd1dVkffg9T/LI7qrV3W9X1apVa/3Xn3/+KRiG6R8W
         CcM4wCJhGAdYJAzjAIuEYRxgkTCMAywShnGARcIwDrBIGGvp+7NP9Pa+EW/+F/x3X18f+bc6YZEwVtHR
         3SGKKy6JrDOpYsme2WJG5hjx/aah4vuNQ8X0jFHi110zRMrRFWL/5Z2i5NFl0dzWKMVEXcsvWCSMFXT2
@@ -179,4 +179,7 @@
         JAzjAIuEYRxgkTCMAywShnknf4r/AeaozJYkjhogAAAAAElFTkSuQmCC
 </value>
   </data>
+  <metadata name="backgroundWorker1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>211, 17</value>
+  </metadata>
 </root>

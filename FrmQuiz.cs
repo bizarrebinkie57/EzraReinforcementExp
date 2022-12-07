@@ -1,6 +1,6 @@
 using System.CodeDom;
+using System.Media;
 using System.Text.RegularExpressions;
-
 
 
 namespace EzraReinforcementExp
@@ -14,9 +14,9 @@ namespace EzraReinforcementExp
         private List<ElementQuestion> masteredQuestions;
         private ElementQuestion question;
 
-        const int WORKING_POOL_SIZE = 4;
-        const int QUIZ_MINUTES = 1;
-        const bool POSITIVE_MODE = true;
+        int WORKING_POOL_SIZE = 4;
+        int QUIZ_MINUTES = 1;
+        bool POSITIVE_MODE = false;
         readonly string[] CORRECT_POSITIVES = { "Correct,You're smart!", "Correct,You're good!", "Correct,That was really smart!" };
         readonly string[] INCORRECT_POSITIVES = { "Incorrect, Keep trying!" };
         readonly string[] CORRECT_NEGATIVES = { "Correct, It's about time." };
@@ -55,10 +55,18 @@ namespace EzraReinforcementExp
 
                 }
             }
+
+            // set the reinforcement mode
+            POSITIVE_MODE = Settings1.Default.PositiveMode;
+            QUIZ_MINUTES = Settings1.Default.QuizMinutes;
+            WORKING_POOL_SIZE = Settings1.Default.WorkingPoolSize;
         }
 
         private void TbResponse_KeyPress(object sender, KeyPressEventArgs e)
         {
+            SoundPlayer soundPlayer;
+            String soundFile = "";
+
             if (e.KeyChar == Convert.ToChar(Keys.Return))
             {
                 TbResponse.Enabled = false;
@@ -67,9 +75,24 @@ namespace EzraReinforcementExp
                 if (String.Equals(TbResponse.Text, question.name, StringComparison.OrdinalIgnoreCase))
                 {
 
+                    PbCheck.Visible = true;
+
                     if (POSITIVE_MODE)
                     {
                         LblReinforcement.Text = CORRECT_POSITIVES[new Random().Next(0, CORRECT_POSITIVES.Length)];
+
+                        switch (new Random().Next(2)) {
+                            case 0:
+                                soundFile = @"Resources\mixkit-retro-game-notification-212.wav";
+                                break;
+                            case 1:
+                                soundFile = @"Resources\mixkit-small-crowd-ovation-437.wav";
+                                break;
+                        }
+                        soundPlayer = new SoundPlayer(soundFile);
+                        soundPlayer.Play();
+
+
                     } else
                     {
                         LblReinforcement.Text = CORRECT_NEGATIVES[new Random().Next(0, CORRECT_NEGATIVES.Length)];
@@ -82,6 +105,8 @@ namespace EzraReinforcementExp
                 } else {
                     //TbResponse.Font.Strikeout = true;
 
+                    pbX.Visible = true;
+
                     if (POSITIVE_MODE)
                     {
                         LblReinforcement.Text = INCORRECT_POSITIVES[new Random().Next(0, INCORRECT_POSITIVES.Length)];
@@ -89,6 +114,18 @@ namespace EzraReinforcementExp
                     else
                     {
                         LblReinforcement.Text = INCORRECT_NEGATIVES[new Random().Next(0, INCORRECT_NEGATIVES.Length)];
+
+                        switch (new Random().Next(2))
+                        {
+                            case 0:
+                                soundFile = @"Resources\mixkit-crowd-laugh-424.wav";
+                                break;
+                            case 1:
+                                soundFile = @"Resources\mixkit-arcade-retro-game-over-213.wav";
+                                break;
+                        }
+                        soundPlayer = new SoundPlayer(soundFile);
+                        soundPlayer.Play();
                     }
 
                     Lblcorrectanswer.Text = question.name;
@@ -96,6 +133,7 @@ namespace EzraReinforcementExp
 
                 // turn on the timer
                 timer.Enabled = true;
+                e.Handled = true;
             }
         }
 
@@ -124,6 +162,8 @@ namespace EzraReinforcementExp
             Lblcorrectanswer.Text = "";
             LblReinforcement.Text = "";
             TbResponse.Text = "";
+            PbCheck.Visible = false;
+            pbX.Visible = false;
 
             // show the question
             LblQuestion.Text = "What is the name of element " + question.symbol + "?";
@@ -137,7 +177,8 @@ namespace EzraReinforcementExp
             {
                 if (allQuestions.Count == 0) break; // we're out of questions!
 
-                int randomQuestionIndex = new Random().Next(0, allQuestions.Count);
+                int randomQuestionIndex = 0;
+                //int randomQuestionIndex = new Random().Next(0, allQuestions.Count);
                 currentQuestions.Add(allQuestions[randomQuestionIndex]);
                 allQuestions.Remove(allQuestions[randomQuestionIndex]);
             }

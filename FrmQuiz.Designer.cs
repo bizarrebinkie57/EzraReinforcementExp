@@ -36,8 +36,11 @@
             this.Lblcorrectanswer = new System.Windows.Forms.Label();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.GameTimer = new System.Windows.Forms.Timer(this.components);
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.PbCheck = new System.Windows.Forms.PictureBox();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.pbX = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.PbCheck)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbX)).BeginInit();
             this.SuspendLayout();
             // 
             // LblQuestion
@@ -89,21 +92,33 @@
             // 
             this.GameTimer.Tick += new System.EventHandler(this.GameTimer_Tick);
             // 
-            // pictureBox1
+            // PbCheck
             // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(28, 192);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(201, 181);
-            this.pictureBox1.TabIndex = 4;
-            this.pictureBox1.TabStop = false;
+            this.PbCheck.Image = ((System.Drawing.Image)(resources.GetObject("PbCheck.Image")));
+            this.PbCheck.Location = new System.Drawing.Point(252, 162);
+            this.PbCheck.Name = "PbCheck";
+            this.PbCheck.Size = new System.Drawing.Size(57, 61);
+            this.PbCheck.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.PbCheck.TabIndex = 4;
+            this.PbCheck.TabStop = false;
+            // 
+            // pbX
+            // 
+            this.pbX.Image = global::EzraReinforcementExp.Properties.Resources.OIP;
+            this.pbX.Location = new System.Drawing.Point(252, 162);
+            this.pbX.Name = "pbX";
+            this.pbX.Size = new System.Drawing.Size(57, 61);
+            this.pbX.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbX.TabIndex = 4;
+            this.pbX.TabStop = false;
             // 
             // FrmQuiz
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1260, 405);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.pbX);
+            this.Controls.Add(this.PbCheck);
             this.Controls.Add(this.Lblcorrectanswer);
             this.Controls.Add(this.TbResponse);
             this.Controls.Add(this.LblReinforcement);
@@ -111,7 +126,8 @@
             this.Name = "FrmQuiz";
             this.Text = "Quizaroo";
             this.Load += new System.EventHandler(this.FrmQuiz_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PbCheck)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbX)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -125,6 +141,8 @@
         private Label Lblcorrectanswer;
         private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.Timer GameTimer;
-        private PictureBox pictureBox1;
+        private PictureBox PbCheck;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private PictureBox pbX;
     }
 }
