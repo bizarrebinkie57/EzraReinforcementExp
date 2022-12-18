@@ -1,90 +1,133 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using EzraReinforcementExp;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
-/*
-namespace EzraReinforcementExp
+public class GameManager
 {
-    public class GameManager
+
+    private List<ElementQuestion>? allQuestions;
+    private List<ElementQuestion>? currentQuestions;
+    private List<ElementQuestion>? masteredQuestions;
+    private ElementQuestion? question;
+
+    public int WORKING_POOL_SIZE = 4;
+    public int QUIZ_MINUTES = 1;
+    public bool POSITIVE_MODE = false;
+    private static readonly string[] CORRECT_POSITIVES = { "Correct,You're smart!", "Correct,You're good!", "Correct,That was really smart!" };
+    private static readonly string[] INCORRECT_POSITIVES = { "Incorrect, Keep trying!" };
+    private static readonly string[] CORRECT_NEGATIVES = { "Correct, It's about time." };
+    private static readonly string[] INCORRECT_NEGATIVES = { "Incorrect,You're dumb!", "Incorrect,You're bad!", "Incorrect Are You Even Trying", "Incorrect,Youre bad at this!" };
+
+    private string strReinforcement;
+
+    public ElementQuestion? Question { get => question; }
+
+    public GameManager()
     {
+        // initialize
+        allQuestions = new List<ElementQuestion>();
+        currentQuestions = new List<ElementQuestion>();
+        masteredQuestions = new List<ElementQuestion>();
 
-        public Question[] questions;
-        private static List<Question> unansweredQuestions;
-
-        private Question currentQuestion;
-
-        public ElementQuestion[] elementQuestions;
-        public List<ElementQuestion> unansweredElementQuestions;
-        //private static List<ElementQuestion> unansweredElementQuestions;
-        private ElementQuestion currentElementQuestion;
-
-        private float timeBetweenQuestions = 1f;
-
-        void Start()
+        //import elements
+        using (StreamReader reader = new StreamReader(@"Resources\elements.csv"))
         {
+            string line;
 
-            //import elements
-            using (StreamReader reader = new StreamReader(@"C:\Users\ezral\Unity\elements.csv"))
+            while ((line = reader.ReadLine()) != null)
             {
-                string line;
+                //Define pattern
+                Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
 
-                while ((line = reader.ReadLine()) != null)
+                //Separating columns to array
+                string[] X = CSVParser.Split(line);
+
+                //Debug.Log(X[0]);
+                ElementQuestion eq = new()
                 {
-                    //Define pattern
-                    Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+                    Name = X[0],
+                    Symbol = X[1]
+                };
+                allQuestions.Add(eq);
 
-                    //Separating columns to array
-                    string[] X = CSVParser.Split(line);
-
-                    //Debug.Log(X[0]);
-                    ElementQuestion eq = new ElementQuestion();
-                    eq.name = X[0];
-                    eq.symbol = X[1];
-                    unansweredElementQuestions.Add(eq);
-
-                }
             }
-
-            if (unansweredQuestions == null || unansweredQuestions.Count == 0)
-            {
-                unansweredQuestions = questions.ToList<Question>();
-            }
-
-            SetCurrentQuestion();
-
         }
 
+        // set the reinforcement mode
+        POSITIVE_MODE = Settings1.Default.PositiveMode;
+        QUIZ_MINUTES = Settings1.Default.QuizMinutes;
+        WORKING_POOL_SIZE = Settings1.Default.WorkingPoolSize;
 
-        void SetCurrentQuestion()
-        {
-            int randomQuestionIndex = new Random().Next(0, unansweredQuestions.Count);
-            currentQuestion = unansweredQuestions[randomQuestionIndex];
-
-            //factText.text = currentQuestion.fact;
-
-        }
-
+        // load up the current pool
+        FillupCurrentQuestions();
 
     }
 
-    public class Question
+    public void FillupCurrentQuestions()
     {
+        while (currentQuestions.Count < WORKING_POOL_SIZE)
+        {
+            if (allQuestions.Count == 0) break; // we're out of questions!
 
-        public string fact;
-        public bool isTrue;
+            int randomQuestionIndex = 0;
+            //int randomQuestionIndex = new Random().Next(0, allQuestions.Count);
+            currentQuestions.Add(allQuestions[randomQuestionIndex]);
+            allQuestions.Remove(allQuestions[randomQuestionIndex]);
+        }
+    }
+
+    public int TotalMastered()
+    {
+        return masteredQuestions.Count;
+    }
+
+    public void NextQuestion()
+    {
+        // get our next question
+        int randomQuestionIndex = new Random().Next(0, currentQuestions.Count);
+        question = currentQuestions[randomQuestionIndex];
 
     }
 
+    public bool CheckAnswer(String userResponse)
+    {
+        bool correct;
 
+        correct = String.Equals(userResponse, Question.Name, StringComparison.OrdinalIgnoreCase);
+
+        if (correct) {
+            // move the element to mastered
+            masteredQuestions.Add(Question);
+            currentQuestions.Remove(Question);
+            FillupCurrentQuestions();
+
+            if (POSITIVE_MODE)
+            {
+                strReinforcement = CORRECT_POSITIVES[new Random().Next(0, GameManager.CORRECT_POSITIVES.Length)];
+            } else
+            {
+                strReinforcement = CORRECT_NEGATIVES[new Random().Next(0, GameManager.CORRECT_NEGATIVES.Length)];
+            }
+        } else
+        {
+            if (POSITIVE_MODE)
+            {
+                strReinforcement = INCORRECT_POSITIVES[new Random().Next(0, GameManager.INCORRECT_POSITIVES.Length)];
+            }
+            else
+            {
+                strReinforcement = INCORRECT_NEGATIVES[new Random().Next(0, GameManager.INCORRECT_NEGATIVES.Length)];
+            }
+        }
+
+        return correct;
+    }
+
+    public string Reinforcment()
+    {
+        return strReinforcement;
+    }
 
 
 }
-
-*/

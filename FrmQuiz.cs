@@ -6,60 +6,16 @@ using System.Text.RegularExpressions;
 namespace EzraReinforcementExp
 {
 
-
     public partial class FrmQuiz : Form
     {
-        private List<ElementQuestion> allQuestions;
-        private List<ElementQuestion> currentQuestions;
-        private List<ElementQuestion> masteredQuestions;
-        private ElementQuestion question;
-
-        int WORKING_POOL_SIZE = 4;
-        int QUIZ_MINUTES = 1;
-        bool POSITIVE_MODE = false;
-        readonly string[] CORRECT_POSITIVES = { "Correct,You're smart!", "Correct,You're good!", "Correct,That was really smart!" };
-        readonly string[] INCORRECT_POSITIVES = { "Incorrect, Keep trying!" };
-        readonly string[] CORRECT_NEGATIVES = { "Correct, It's about time." };
-        readonly string[] INCORRECT_NEGATIVES = { "Incorrect,You're dumb!", "Incorrect,You're bad!", "Incorrect Are You Even Trying", "Incorrect,Youre bad at this!" };
-
+        private GameManager game;
 
         public FrmQuiz()
         {
             InitializeComponent();
 
-            // initialize
-            allQuestions = new List<ElementQuestion>();
-            currentQuestions = new List<ElementQuestion>();
-            masteredQuestions = new List<ElementQuestion>();
+            game = new GameManager();
 
-            //import elements
-            using (StreamReader reader = new StreamReader(@"C:\Users\ezral\Unity\elements.csv"))
-            {
-                string line;
-
-                while ((line = reader.ReadLine()) != null)
-                {
-                    //Define pattern
-                    Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-
-                    //Separating columns to array
-                    string[] X = CSVParser.Split(line);
-
-                    //Debug.Log(X[0]);
-                    ElementQuestion eq = new()
-                    {
-                        name = X[0],
-                        symbol = X[1]
-                    };
-                    allQuestions.Add(eq);
-
-                }
-            }
-
-            // set the reinforcement mode
-            POSITIVE_MODE = Settings1.Default.PositiveMode;
-            QUIZ_MINUTES = Settings1.Default.QuizMinutes;
-            WORKING_POOL_SIZE = Settings1.Default.WorkingPoolSize;
         }
 
         private void TbResponse_KeyPress(object sender, KeyPressEventArgs e)
@@ -67,20 +23,20 @@ namespace EzraReinforcementExp
             SoundPlayer soundPlayer;
             String soundFile = "";
 
+            // when the user presses enter
             if (e.KeyChar == Convert.ToChar(Keys.Return))
             {
                 TbResponse.Enabled = false;
 
                 // check their answer
-                if (String.Equals(TbResponse.Text, question.name, StringComparison.OrdinalIgnoreCase))
+                if (game.CheckAnswer(TbResponse.Text))
                 {
 
                     PbCheck.Visible = true;
-
-                    if (POSITIVE_MODE)
+                    
+                    if (game.POSITIVE_MODE)
                     {
-                        LblReinforcement.Text = CORRECT_POSITIVES[new Random().Next(0, CORRECT_POSITIVES.Length)];
-
+             
                         switch (new Random().Next(2)) {
                             case 0:
                                 soundFile = @"Resources\mixkit-retro-game-notification-212.wav";
@@ -92,29 +48,25 @@ namespace EzraReinforcementExp
                         soundPlayer = new SoundPlayer(soundFile);
                         soundPlayer.Play();
 
-
                     } else
                     {
-                        LblReinforcement.Text = CORRECT_NEGATIVES[new Random().Next(0, CORRECT_NEGATIVES.Length)];
+                        // nothing special
                     }
 
                     // move the element to mastered
-                    masteredQuestions.Add(question);
-                    currentQuestions.Remove(question);
-                    FillupCurrentQuestions();
+                    game.AdvanceQuestion();
+
                 } else {
                     //TbResponse.Font.Strikeout = true;
 
                     pbX.Visible = true;
 
-                    if (POSITIVE_MODE)
+                    if (game.POSITIVE_MODE)
                     {
-                        LblReinforcement.Text = INCORRECT_POSITIVES[new Random().Next(0, INCORRECT_POSITIVES.Length)];
+                        // nothing special
                     }
                     else
                     {
-                        LblReinforcement.Text = INCORRECT_NEGATIVES[new Random().Next(0, INCORRECT_NEGATIVES.Length)];
-
                         switch (new Random().Next(2))
                         {
                             case 0:
@@ -128,8 +80,10 @@ namespace EzraReinforcementExp
                         soundPlayer.Play();
                     }
 
-                    Lblcorrectanswer.Text = question.name;
+                    Lblcorrectanswer.Text = game.Question.Name;
                 }
+
+                LblReinforcement.Text = game.Reinforcment();
 
                 // turn on the timer
                 timer.Enabled = true;
@@ -140,23 +94,18 @@ namespace EzraReinforcementExp
         private void FrmQuiz_Load(object sender, EventArgs e)
         {
 
-            // load up the current pool
-            FillupCurrentQuestions();
-
-            // start the first question
             nextQuestion();
 
             // start the game timer
-            GameTimer.Interval = 1000 * 60 * QUIZ_MINUTES;
+            GameTimer.Interval = 1000 * 60 * game.QUIZ_MINUTES;
             GameTimer.Enabled = true;
 
         }
 
         private void nextQuestion()
         {
-            // get our first question
-            int randomQuestionIndex = new Random().Next(0, currentQuestions.Count);
-            question = currentQuestions[randomQuestionIndex];
+            // get the next qestion
+            game.NextQuestion();
 
             // clear the text
             Lblcorrectanswer.Text = "";
@@ -166,22 +115,8 @@ namespace EzraReinforcementExp
             pbX.Visible = false;
 
             // show the question
-            LblQuestion.Text = "What is the name of element " + question.symbol + "?";
+            LblQuestion.Text = "What is the name of element " + game.Question.Symbol + "?";
 
-        }
-
-
-        private void FillupCurrentQuestions()
-        {
-            while (currentQuestions.Count < WORKING_POOL_SIZE)
-            {
-                if (allQuestions.Count == 0) break; // we're out of questions!
-
-                int randomQuestionIndex = 0;
-                //int randomQuestionIndex = new Random().Next(0, allQuestions.Count);
-                currentQuestions.Add(allQuestions[randomQuestionIndex]);
-                allQuestions.Remove(allQuestions[randomQuestionIndex]);
-            }
         }
 
         private void timer_Tick(object sender, EventArgs e)
@@ -197,7 +132,7 @@ namespace EzraReinforcementExp
         {
             timer.Enabled = false;
             TbResponse.Enabled = false;
-            LblQuestion.Text = "Game over. You mastered " + masteredQuestions.Count + " elements";
+            LblQuestion.Text = "Game over. You mastered " + game.TotalMastered() + " elements";
             LblReinforcement.Text = "";
             Lblcorrectanswer.Text = "";
         }

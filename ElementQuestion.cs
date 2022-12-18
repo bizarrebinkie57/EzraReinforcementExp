@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 namespace EzraReinforcementExp
 {
 
-    internal class ElementQuestion
+    public class ElementQuestion
     {
-        public string symbol;
-        public string name;
+        private string? symbol;
+        private string? name;
+
+        public string Name { get => name; set => name = value; }
+        public string Symbol { get => symbol; set => symbol = value; }
     }
 }
