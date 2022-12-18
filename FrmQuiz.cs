@@ -53,9 +53,6 @@ namespace EzraReinforcementExp
                         // nothing special
                     }
 
-                    // move the element to mastered
-                    game.AdvanceQuestion();
-
                 } else {
                     //TbResponse.Font.Strikeout = true;
 
@@ -93,13 +90,12 @@ namespace EzraReinforcementExp
 
         private void FrmQuiz_Load(object sender, EventArgs e)
         {
-
+            // load the first question
             nextQuestion();
 
             // start the game timer
             GameTimer.Interval = 1000 * 60 * game.QUIZ_MINUTES;
             GameTimer.Enabled = true;
-
         }
 
         private void nextQuestion()
@@ -136,7 +132,6 @@ namespace EzraReinforcementExp
             LblReinforcement.Text = "";
             Lblcorrectanswer.Text = "";
         }
-
         
     }
 

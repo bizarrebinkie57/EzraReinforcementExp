@@ -64,19 +64,6 @@ public class GameManager
 
     }
 
-    public void FillupCurrentQuestions()
-    {
-        while (currentQuestions.Count < WORKING_POOL_SIZE)
-        {
-            if (allQuestions.Count == 0) break; // we're out of questions!
-
-            int randomQuestionIndex = 0;
-            //int randomQuestionIndex = new Random().Next(0, allQuestions.Count);
-            currentQuestions.Add(allQuestions[randomQuestionIndex]);
-            allQuestions.Remove(allQuestions[randomQuestionIndex]);
-        }
-    }
-
     public int TotalMastered()
     {
         return masteredQuestions.Count;
@@ -129,5 +116,17 @@ public class GameManager
         return strReinforcement;
     }
 
+    private void FillupCurrentQuestions()
+    {
+        while (currentQuestions.Count < WORKING_POOL_SIZE)
+        {
+            if (allQuestions.Count == 0) break; // we're out of questions!
+
+            int randomQuestionIndex = 0;
+            //int randomQuestionIndex = new Random().Next(0, allQuestions.Count);
+            currentQuestions.Add(allQuestions[randomQuestionIndex]);
+            allQuestions.Remove(allQuestions[randomQuestionIndex]);
+        }
+    }
 
 }
